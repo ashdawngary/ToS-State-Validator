@@ -38,7 +38,7 @@ def confirmed_sure(idx,role):
     cPlayers[idx-1].confirmedSelf(tosBasher.get(role))
 def confirmed_death(idx,role):
     cPlayers[idx-1].confirmedDeath(tosBasher.get(role))
-def confirmed_deathGF(idx,role):
+def confirmed_deathGF(idx):
     cPlayers[idx-1].confirmedDeathGF()
 def confirmed_deathMafioso(idx,role):
     cPlayers[idx-1].confirmedDeathMafioso()

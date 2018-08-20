@@ -1,4 +1,10 @@
+from Tkinter import *
+master = None
+def setMasterToLift(r):
+    global master
+    master = r
 def getString(title,Question):
+    global master
     f = Tk()
     f.title(title)
     q = Label(f,text=Question)
@@ -17,7 +23,7 @@ def getString(title,Question):
     return ans
 
 def getRole(title,Question):
-    a = getString()
+    a = getString(title,Question)
     try:
         int(a)
         return int(a)
