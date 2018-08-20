@@ -15,7 +15,20 @@ TI = [12,18,19,14]
 jailor = 13
 NK = [26,27,28]
 NE = [24,25,23]
-
+EXPLNK = NK
+EXPLNE = NE
+def setNK(role):
+    global EXPLNK
+    eid = tosBasher.get(role)
+    print "operating under assumption of %s (%s) NK"%(role,eid)
+    EXPLNK = eid
+    print 'Please refresh'
+def setNE(role):
+    global EXPLNE
+    eid = tosBasher.get(role)
+    print "operating under assumption of %s (%s) NE"%(role,eid)
+    EXPLNE = eid
+    print 'Please refresh'
 def mv(idx):
     cPlayers[idx-1].mafvisit=True
     cPlayers[idx-1].mafiavisited()
@@ -76,9 +89,11 @@ def queryList(cidx):
     cRes = pieces[cidx-1]
     if cRes == None:
         # update cRes
+        #print 'q'+str(cidx)
         pieces[cidx-1] = player_getcatagories(cidx)
     return pieces[cidx-1]
 def clearList():
+    global pieces
     pieces = [None for i in range(0,15)]
 cVal = [0 for i in range(0,15)]
 numPushedStates = 0
@@ -101,11 +116,14 @@ adjacent = {}
 def project():
     for i in cmatr:
         print i
+def rst():
+    global cmatr
+    cmatr = [[0]*len(types) for i in range(0,15)]
 def fitClaims():
     clearList()
     for i in range(0,15):
         queryList(i)
-    prks = [[i,len(pieces[i])] for i in range(0,15)]
+    prks = [[i,len(pieces[i])+random.random()*0.05] for i in range(0,15)]
     prks.sort(key = lambda a:a[1])
     cTime = 1
     for v in prks:
@@ -118,7 +136,9 @@ def fitClaims():
     for i in range(0,len(prks)-1):
         adjacent[prks[i][0] + 1] = prks[i+1][0] + 1
     adjacent[prks[len(prks)-1][0] + 1] = 16
-    orientation = update(startlist,prks[0][0]+1)
+
+    for i in range(0,100000):
+        update(startlist,prks[0][0]+1)
 
 def update(clist,idx):
     #print idx
@@ -137,19 +157,24 @@ def update(clist,idx):
                     setState(idx,"RM")
                     q = update(clist,adjacent[idx])
                     clist[0] += 1
-                    break
+                    if q == True:
+                        return True
         elif next == "MAFIOSO" and clist[1] > 0:
             if cPlayers[idx-1].possible[tosBasher.get("mafioso")]:
                 clist[1] -= 1
                 setState(idx,"MAFIOSO")
                 q = update(clist,adjacent[idx])
                 clist[1] += 1
+                if q == True:
+                    return True
         elif next == "GF" and clist[2] > 0:
             if cPlayers[idx-1].possible[tosBasher.get("gf")]:
                 clist[2] -= 1
                 setState(idx,"GF")
                 q = update(clist,adjacent[idx])
                 clist[2] += 1
+                if q == True:
+                    return True
         elif next == "TP" and clist[3] > 0:
             for rMaf in TP:
                 if cPlayers[idx-1].possible[rMaf]:
@@ -157,7 +182,8 @@ def update(clist,idx):
                     setState(idx,"TP")
                     q = update(clist,adjacent[idx])
                     clist[3] += 1
-                    break
+                    if q == True:
+                        return True
         elif next == "TP" and clist[8] > 0:
             for rMaf in TP:
                 if cPlayers[idx-1].possible[rMaf]:
@@ -165,7 +191,8 @@ def update(clist,idx):
                     setState(idx,"RT")
                     q = update(clist,adjacent[idx])
                     clist[8] += 1
-                    break
+                    if q == True:
+                        return True
         elif next == "TK" and clist[4] > 0:
             for rMaf in TK:
                 if cPlayers[idx-1].possible[rMaf]:
@@ -173,7 +200,8 @@ def update(clist,idx):
                     setState(idx,"TK")
                     q = update(clist,adjacent[idx])
                     clist[4] += 1
-                    break
+                    if q == True:
+                        return True
         elif next == "TK" and clist[8] > 0:
             for rMaf in TK:
                 if cPlayers[idx-1].possible[rMaf]:
@@ -181,7 +209,8 @@ def update(clist,idx):
                     setState(idx,"RT")
                     q = update(clist,adjacent[idx])
                     clist[8] += 1
-                    break
+                    if q == True:
+                        return True
         elif next == "TS" and clist[5] > 0:
             for rMaf in TS:
                 if cPlayers[idx-1].possible[rMaf]:
@@ -189,7 +218,8 @@ def update(clist,idx):
                     setState(idx,"TS")
                     q = update(clist,adjacent[idx])
                     clist[5] += 1
-                    break
+                    if q == True:
+                        return True
         elif next == "TS" and clist[8] > 0:
             for rMaf in TS:
                 if cPlayers[idx-1].possible[rMaf]:
@@ -197,13 +227,16 @@ def update(clist,idx):
                     setState(idx,"RT")
                     q = update(clist,adjacent[idx])
                     clist[8] += 1
-                    break
+                    if q == True:
+                        return True
         elif next == "Jailor" and clist[6] > 0:
             if cPlayers[idx-1].possible[tosBasher.get("jailor")]:
                 clist[6] -= 1
                 setState(idx,"Jailor")
                 q = update(clist,adjacent[idx])
                 clist[6] += 1
+                if q == True:
+                    return True
         elif next == "TI" and clist[7] > 0:
             for rMaf in TI:
                 if cPlayers[idx-1].possible[rMaf]:
@@ -211,7 +244,8 @@ def update(clist,idx):
                     setState(idx,"TI")
                     q = update(clist,adjacent[idx])
                     clist[7] += 1
-                    break
+                    if q == True:
+                        return True
         elif next == "TI" and clist[8] > 0:
             for rMaf in TI:
                 if cPlayers[idx-1].possible[rMaf]:
@@ -219,23 +253,26 @@ def update(clist,idx):
                     setState(idx,"RT")
                     q = update(clist,adjacent[idx])
                     clist[8] += 1
-                    break
+                    if q == True:
+                        return True
         elif next == "NK" and clist[9] > 0:
             for rMaf in NK:
-                if cPlayers[idx-1].possible[rMaf]:
+                if cPlayers[idx-1].possible[rMaf] and rMaf in EXPLNK:
                     clist[9] -= 1
                     setState(idx,"NK")
                     q = update(clist,adjacent[idx])
                     clist[9] += 1
-                    break
+                    if q == True:
+                        return True
         elif next == "NE" and clist[10] > 0:
             for rMaf in NE:
-                if cPlayers[idx-1].possible[rMaf]:
+                if cPlayers[idx-1].possible[rMaf] and rMaf in EXPLNE:
                     clist[10] -= 1
                     setState(idx,"NE")
                     q = update(clist,adjacent[idx])
                     clist[10] += 1
-                    break
+                    if q == True:
+                        return True
 #    if adjacent[idx] == 16:
 #        print "Ran out of options: ",idx,adjacent[idx],clist,queryList(idx),"didnt fit last min"
 #    else:
