@@ -113,22 +113,25 @@ cFit = [2,1,1,1,1,1,1,2,3,1,1]
 types= ["RM","MAFIOSO","GF","TP","TK","TS","Jailor","TI","RT","NK","NE"]
 cmatr = [[0]*len(types) for i in range(0,15)]
 adjacent = {}
+topr = [None for i in range(0,15)]
 def fmt(n):
     f =  "%s%%"%(str(100*round(n,4)))
     return f.ljust(7)
 def project():
     psudotypes = list(types)
     psudotypes.pop(8) # no rt header
-    print ' '.join(map(lambda x: x.ljust(7),psudotypes))
+    #print ' '.join(map(lambda x: x.ljust(7),psudotypes))
+    k = 0
     for i in cmatr:
         q = list(i)
         q.pop(8)
         s = max(sum(q),1)
         for i in range(0,len(q)):
             q[i] /= float(s)
-        print ' '.join(map(fmt,q))
-    print "Operating on NE as : %s"%(', '.join(map(lambda x: tosBasher.roles[x],EXPLNE)))
-    print "Operating on NK as : %s"%(', '.join(map(lambda x: tosBasher.roles[x],EXPLNK)))
+        topr[k] = ' '.join(map(fmt,q))
+        k += 1
+    #print "Operating on NE as : %s"%(', '.join(map(lambda x: tosBasher.roles[x],EXPLNE)))
+    #print "Operating on NK as : %s"%(', '.join(map(lambda x: tosBasher.roles[x],EXPLNK)))
 def rst():
     global cmatr
     cmatr = [[0]*len(types) for i in range(0,15)]
