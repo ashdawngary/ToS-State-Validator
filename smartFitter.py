@@ -54,6 +54,8 @@ def player_oninvest(idx,role):
     cPlayers[idx-1].onInvestResults(tosBasher.get(role))
 def confirmed_isMafia(idx):
     cPlayers[idx-1].isMafia()
+def confirmed_isInno(idx):
+    cPlayers[idx-1].isInno()
 def player_getcatagories(idx):
     proto_possible = set([])
     for i in NE:
@@ -153,7 +155,7 @@ def fitClaims():
         adjacent[prks[i][0] + 1] = prks[i+1][0] + 1
     adjacent[prks[len(prks)-1][0] + 1] = 16
 
-    for i in range(0,100000):
+    for i in range(0,10000):
         update(startlist,prks[0][0]+1)
 
 def update(clist,idx):

@@ -54,6 +54,11 @@ class CurrentPerson:
     def isMafia(self):
         for i in range(9,29):
             self.possible[i] = False
+        self.possible[5] = False
+    def isInno(self):
+        for i in range(0,8):
+            self.possible[i] = False
+        self.possible[5] = True and self.possible[5]
     def jesteryClaim(self,role):
         # potential jester / exe / mafia / or actual claim but nothing else.
         self.clear()

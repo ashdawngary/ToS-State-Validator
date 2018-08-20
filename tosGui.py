@@ -10,7 +10,7 @@ cLabels = [Label(master,textvariable=cValues[i]) for i in range(0,15)]
 for i in range(0,len(cLabels)):
     cLabels[i].place(x=120,y=50+(30*i))
 nH = []
-master.geometry("800x600")
+master.geometry("900x700")
 
 for i in range(0,15):
     name= getString("General","Name of %s"%(i+1))
@@ -25,7 +25,7 @@ def rePopulate():
     smartFitter.project()
     for i in range(0,15):
         cValues[i].set(smartFitter.topr[i])
-
+    master.after(250,rePopulate)
 
 def oninvest():
     targetidx = getRole("Investigative","User Number")
@@ -35,7 +35,12 @@ def oninvest():
     while not targetRole in tosCore.roles:
         targetRole = getString("Investigative","Role")
     smartFitter.player_oninvest(targetidx,targetRole)
-
+def confirmIt():
+    targetidx = getRole("Confirmed","User Number")
+    targetRole = getString("Confirmed","Role")
+    while not targetRole in tosCore.roles:
+        targetRole = getString("Confirmed","Role")
+    smartFitter.confirmed_sure(targetidx,targetRole)
 def onDeath():
     targetidx = getRole("Dead","User Number")
     contradiction = getYesNo("Fishy","Was there a clear contradiction?")
@@ -64,14 +69,43 @@ def setNE():
     if targetRole == None or not targetRole in ["witch","exe","jester"]:
         return
     smartFitter.setNE(targetRole)
-
+def prepReupdate():
+    smartFitter.rst()
+    master.after(50,smartFitter.fitClaims)
+    master.after(150,smartFitter.fitClaims)
+    master.after(250,smartFitter.fitClaims)
+    master.after(350,smartFitter.fitClaims)
+    master.after(450,smartFitter.fitClaims)
+    master.after(550,smartFitter.fitClaims)
+    master.after(650,smartFitter.fitClaims)
+    master.after(750,smartFitter.fitClaims)
+    master.after(850,smartFitter.fitClaims)
+    master.after(950,smartFitter.fitClaims)
+    master.after(1050,smartFitter.fitClaims)
+def getSpyDetails():
+    usr = getRole("Spy","User Number")
+    smartFitter.mv(usr)
+def getSheriffDetails():
+    usr = getRole("Sheriff","User Number")
+    if getYesNo("Sheriff","Inno?"):
+        smartFitter.confirmed_isInno(usr)
+    else:
+        smartFitter.confirmed_isMafia(usr)
 oninvestigative = Button(text = "Invest Results",command = oninvest)
 onDeath = Button(text = "Death Results",command = onDeath)
 onNK = Button(text = "set NK",command = setNK)
 onNE = Button(text = "set NE",command = setNE)
-oninvestigative.place(x=500,y=0)
-onDeath.place(x=500,y=50)
-onNK.place(x=500,y=100)
-onNE.place(x=500,y=150)
+onReclaulate = Button(text = "Update Monte Carlo",command=prepReupdate)
+onSpy = Button(text="Spy Detail Update",command=getSpyDetails)
+onSheriff = Button(text="Sheriff Detail Update",command=getSheriffDetails)
+onConfirmed = Button(text = "confirm someone",command = confirmIt)
+oninvestigative.place(x=600,y=0)
+onReclaulate.place(x=700,y=0)
+onSpy.place(x=700,y=50)
+onSheriff.place(x=700,y=100)
+onConfirmed.place(x=700,y=150)
+onDeath.place(x=600,y=50)
+onNK.place(x=600,y=100)
+onNE.place(x=600,y=150)
 rePopulate()
 master.mainloop()
