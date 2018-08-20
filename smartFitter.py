@@ -87,11 +87,20 @@ def setState(idx,type):
 
 def push():
     global numPushedStates
-    print "Pushed State!",numPushedStates+1
+    if numPushedStates % 100000 == 0:
+        print numPushedStates
+    #print "Pushed State!",numPushedStates+1
     numPushedStates += 1
+    for i in range(0,15):
+        cmatr[i][cVal[i]] += 1
+
 cFit = [2,1,1,1,1,1,1,2,3,1,1]
 types= ["RM","MAFIOSO","GF","TP","TK","TS","Jailor","TI","RT","NK","NE"]
+cmatr = [[0]*len(types) for i in range(0,15)]
 adjacent = {}
+def project():
+    for i in cmatr:
+        print i
 def fitClaims():
     clearList()
     for i in range(0,15):
@@ -114,7 +123,8 @@ def fitClaims():
 def update(clist,idx):
     #print idx
     if idx == 16:
-        print "Found Solution"
+        #print "Found Solution"
+        push()
         return True
     checkwise = list(queryList(idx))
     random.shuffle(checkwise)
@@ -124,149 +134,110 @@ def update(clist,idx):
             for rMaf in RM:
                 if cPlayers[idx-1].possible[rMaf]:
                     clist[0] -= 1
+                    setState(idx,"RM")
                     q = update(clist,adjacent[idx])
                     clist[0] += 1
-                    if q:
-                        print idx,"was","random mafia: ",rMaf,tosBasher.roles[rMaf]
-                        return True
-                    else:
-                        break
+                    break
         elif next == "MAFIOSO" and clist[1] > 0:
             if cPlayers[idx-1].possible[tosBasher.get("mafioso")]:
                 clist[1] -= 1
+                setState(idx,"MAFIOSO")
                 q = update(clist,adjacent[idx])
-                if q  == True:
-                    print idx,"was mafioso"
-                    return True
                 clist[1] += 1
         elif next == "GF" and clist[2] > 0:
             if cPlayers[idx-1].possible[tosBasher.get("gf")]:
                 clist[2] -= 1
+                setState(idx,"GF")
                 q = update(clist,adjacent[idx])
-                if q  == True:
-                    print idx,"was gf"
-                    return True
                 clist[2] += 1
         elif next == "TP" and clist[3] > 0:
             for rMaf in TP:
                 if cPlayers[idx-1].possible[rMaf]:
                     clist[3] -= 1
+                    setState(idx,"TP")
                     q = update(clist,adjacent[idx])
                     clist[3] += 1
-                    if q:
-                        print idx,"was","town prot: ",rMaf,tosBasher.roles[rMaf]
-                        return True
-                    else:
-                        break
+                    break
         elif next == "TP" and clist[8] > 0:
             for rMaf in TP:
                 if cPlayers[idx-1].possible[rMaf]:
                     clist[8] -= 1
+                    setState(idx,"RT")
                     q = update(clist,adjacent[idx])
                     clist[8] += 1
-                    if q:
-                        print idx,"was","town random(RTP): ",rMaf,tosBasher.roles[rMaf]
-                        return True
-                    else:
-                        break
+                    break
         elif next == "TK" and clist[4] > 0:
             for rMaf in TK:
                 if cPlayers[idx-1].possible[rMaf]:
                     clist[4] -= 1
+                    setState(idx,"TK")
                     q = update(clist,adjacent[idx])
                     clist[4] += 1
-                    if q:
-                        print idx,"was","town killing: ",rMaf,tosBasher.roles[rMaf]
-                        return True
-                    else:
-                        break
+                    break
         elif next == "TK" and clist[8] > 0:
             for rMaf in TK:
                 if cPlayers[idx-1].possible[rMaf]:
                     clist[8] -= 1
+                    setState(idx,"RT")
                     q = update(clist,adjacent[idx])
                     clist[8] += 1
-                    if q:
-                        print idx,"was","RTK: ",rMaf,tosBasher.roles[rMaf]
-                        return True
-                    else:
-                        break
+                    break
         elif next == "TS" and clist[5] > 0:
             for rMaf in TS:
                 if cPlayers[idx-1].possible[rMaf]:
                     clist[5] -= 1
+                    setState(idx,"TS")
                     q = update(clist,adjacent[idx])
                     clist[5] += 1
-                    if q:
-                        print idx,"was","town supportive: ",rMaf,tosBasher.roles[rMaf]
-                        return True
-                    else:
-                        break
+                    break
         elif next == "TS" and clist[8] > 0:
             for rMaf in TS:
                 if cPlayers[idx-1].possible[rMaf]:
                     clist[8] -= 1
+                    setState(idx,"RT")
                     q = update(clist,adjacent[idx])
                     clist[8] += 1
-                    if q:
-                        print idx,"was","RTS: ",rMaf,tosBasher.roles[rMaf]
-                        return True
-                    else:
-                        break
+                    break
         elif next == "Jailor" and clist[6] > 0:
             if cPlayers[idx-1].possible[tosBasher.get("jailor")]:
                 clist[6] -= 1
+                setState(idx,"Jailor")
                 q = update(clist,adjacent[idx])
-                if q  == True:
-                    print idx,"was jailor"
-                    return True
                 clist[6] += 1
         elif next == "TI" and clist[7] > 0:
             for rMaf in TI:
                 if cPlayers[idx-1].possible[rMaf]:
                     clist[7] -= 1
+                    setState(idx,"TI")
                     q = update(clist,adjacent[idx])
                     clist[7] += 1
-                    if q:
-                        print idx,"was","town investigative: ",rMaf,tosBasher.roles[rMaf]
-                        return True
-                    else:
-                        break
+                    break
         elif next == "TI" and clist[8] > 0:
             for rMaf in TI:
                 if cPlayers[idx-1].possible[rMaf]:
                     clist[8] -= 1
+                    setState(idx,"RT")
                     q = update(clist,adjacent[idx])
                     clist[8] += 1
-                    if q:
-                        print idx,"was","RTI: ",rMaf,tosBasher.roles[rMaf]
-                        return True
-                    else:
-                        break
+                    break
         elif next == "NK" and clist[9] > 0:
             for rMaf in NK:
                 if cPlayers[idx-1].possible[rMaf]:
                     clist[9] -= 1
+                    setState(idx,"NK")
                     q = update(clist,adjacent[idx])
                     clist[9] += 1
-                    if q:
-                        print idx,"was","newt kil: ",rMaf,tosBasher.roles[rMaf]
-                        return True
-                    else:
-                        break
+                    break
         elif next == "NE" and clist[10] > 0:
             for rMaf in NE:
                 if cPlayers[idx-1].possible[rMaf]:
                     clist[10] -= 1
+                    setState(idx,"NE")
                     q = update(clist,adjacent[idx])
                     clist[10] += 1
-                    if q:
-                        print idx,"was","newt evil: ",rMaf,tosBasher.roles[rMaf]
-                        return True
-                    else:
-                        break
-    if adjacent[idx] == 16:
-        print "Ran out of options: ",idx,adjacent[idx],clist,queryList(idx),"didnt fit last min"
-    else:
-        print "Ran out of options: ",idx,adjacent[idx],clist,queryList(idx)
-    return False
+                    break
+#    if adjacent[idx] == 16:
+#        print "Ran out of options: ",idx,adjacent[idx],clist,queryList(idx),"didnt fit last min"
+#    else:
+#        print "Ran out of options: ",idx,adjacent[idx],clist,queryList(idx)
+#    return False
