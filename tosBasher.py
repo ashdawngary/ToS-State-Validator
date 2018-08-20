@@ -12,6 +12,7 @@ class CurrentPerson:
             self.possible[i]= False
         # cant be first 8, mafia roles
     def applyvisiting(self):
+        self.visiting=True
         cant_visit = ["medium","mayor","jailor","veteran","vigi"]
         for i in range(0,len(roles)):
             if roles[i] in cant_visit:
