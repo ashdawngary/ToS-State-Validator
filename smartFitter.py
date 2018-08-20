@@ -21,13 +21,13 @@ def setNK(role):
     global EXPLNK
     eid = tosBasher.get(role)
     print "operating under assumption of %s (%s) NK"%(role,eid)
-    EXPLNK = eid
+    EXPLNK = [eid]
     print 'Please refresh'
 def setNE(role):
     global EXPLNE
     eid = tosBasher.get(role)
     print "operating under assumption of %s (%s) NE"%(role,eid)
-    EXPLNE = eid
+    EXPLNE = [eid]
     print 'Please refresh'
 def mv(idx):
     cPlayers[idx-1].mafvisit=True
@@ -113,9 +113,22 @@ cFit = [2,1,1,1,1,1,1,2,3,1,1]
 types= ["RM","MAFIOSO","GF","TP","TK","TS","Jailor","TI","RT","NK","NE"]
 cmatr = [[0]*len(types) for i in range(0,15)]
 adjacent = {}
+def fmt(n):
+    f =  "%s%%"%(str(100*round(n,4)))
+    return f.ljust(7)
 def project():
+    psudotypes = list(types)
+    psudotypes.pop(8) # no rt header
+    print ' '.join(map(lambda x: x.ljust(7),psudotypes))
     for i in cmatr:
-        print i
+        q = list(i)
+        q.pop(8)
+        s = max(sum(q),1)
+        for i in range(0,len(q)):
+            q[i] /= float(s)
+        print ' '.join(map(fmt,q))
+    print "Operating on NE as : %s"%(', '.join(map(lambda x: tosBasher.roles[x],EXPLNE)))
+    print "Operating on NK as : %s"%(', '.join(map(lambda x: tosBasher.roles[x],EXPLNK)))
 def rst():
     global cmatr
     cmatr = [[0]*len(types) for i in range(0,15)]
@@ -188,7 +201,7 @@ def update(clist,idx):
             for rMaf in TP:
                 if cPlayers[idx-1].possible[rMaf]:
                     clist[8] -= 1
-                    setState(idx,"RT")
+                    setState(idx,"TP")
                     q = update(clist,adjacent[idx])
                     clist[8] += 1
                     if q == True:
@@ -206,7 +219,7 @@ def update(clist,idx):
             for rMaf in TK:
                 if cPlayers[idx-1].possible[rMaf]:
                     clist[8] -= 1
-                    setState(idx,"RT")
+                    setState(idx,"TK")
                     q = update(clist,adjacent[idx])
                     clist[8] += 1
                     if q == True:
@@ -224,7 +237,7 @@ def update(clist,idx):
             for rMaf in TS:
                 if cPlayers[idx-1].possible[rMaf]:
                     clist[8] -= 1
-                    setState(idx,"RT")
+                    setState(idx,"TS")
                     q = update(clist,adjacent[idx])
                     clist[8] += 1
                     if q == True:
@@ -250,7 +263,7 @@ def update(clist,idx):
             for rMaf in TI:
                 if cPlayers[idx-1].possible[rMaf]:
                     clist[8] -= 1
-                    setState(idx,"RT")
+                    setState(idx,"TI")
                     q = update(clist,adjacent[idx])
                     clist[8] += 1
                     if q == True:
