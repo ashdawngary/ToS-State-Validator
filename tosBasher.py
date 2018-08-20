@@ -3,8 +3,8 @@ mafioso_alive = True
 godfather_alive = True
 class CurrentPerson:
     def __init__(self):
-        self.visitng = 0
-        self.possible = [True for i in range(0,28)] # 28 possible roles technically
+        self.visiting = 0
+        self.possible = [True for i in range(0,29)] # 28 possible roles technically
         self.mafvisit = False
     def mafiavisited(self):
         self.mafvisit = True
@@ -12,7 +12,7 @@ class CurrentPerson:
             self.possible[i]= False
         # cant be first 8, mafia roles
     def applyvisiting(self):
-        self.visiting=True
+        self.visiting=1
         cant_visit = ["medium","mayor","jailor","veteran","vigi"]
         for i in range(0,len(roles)):
             if roles[i] in cant_visit:
@@ -62,16 +62,16 @@ class CurrentPerson:
         for random_mafia in RM:
             self.possible[random_mafia] = True
         self.possible[role] = True
-        updateEntity()
+        self.updateEntity()
     def onClaim(self,role):
         # always consider that it could be Random Mafia unless they are confirmed
         # consider that they maybe be either mafia / jester / or the role that they claim / or some crappy NK claim.
-        for random_mafa in RM:
+        for random_mafia in RM:
             self.possible[random_mafia] = True
         self.claim[roles.index("jester")] = True
         self.claim[role] = True
         self.claim[roles.index("vet")]  =True # could be some crappy vet bait we never know
-        updateEntity()
+        self.updateEntity()
     def onInvestResults(self,role):
         #invest results take over, we can only expect that the person is one of the three.
         for result_group in invest_res:
@@ -79,8 +79,8 @@ class CurrentPerson:
                 self.clear()
                 for possible_alias in result_group:
                     self.possible[possible_alias] = True
-        updateEntity()
-    def updateEntity():
+        self.updateEntity()
+    def updateEntity(self):
         if self.mafvisit:
             self.mafiavisited()
         elif self.visiting == 1:
@@ -88,7 +88,7 @@ class CurrentPerson:
     def confirmedSelf(self,role):
         self.clear()
         self.possible[role] = True
-        updateEntity()
+        self.updateEntity()
 def get(role):
     return roles.index(role)
 roles = ["bm","consig","consort","disg","framer","gf","janitor","forger","mafioso","bg","doc","escort","invest","jailor","lo","mayor","med","ret","sheriff","spy","trans","vet","vigi","jester","exe"]
