@@ -110,7 +110,15 @@ def push():
     numPushedStates += 1
     for i in range(0,15):
         cmatr[i][cVal[i]] += 1
-
+def checkBit(val,c):
+    if not c in val:
+        return False
+    return val[c]
+def enableBit(val,c):
+    q = dict(val)
+    if c in q:
+        q[c] = True
+    return q
 cFit = [2,1,1,1,1,1,1,2,3,1,1]
 types= ["RM","MAFIOSO","GF","TP","TK","TS","Jailor","TI","RT","NK","NE"]
 cmatr = [[0]*len(types) for i in range(0,15)]
@@ -154,11 +162,16 @@ def fitClaims():
     for i in range(0,len(prks)-1):
         adjacent[prks[i][0] + 1] = prks[i+1][0] + 1
     adjacent[prks[len(prks)-1][0] + 1] = 16
+    alreadyHave = {tosBasher.get("vet"):False,tosBasher.get("ret"):False,tosBasher.get("mayor"):False} # vet is unique role, same as retri
+    RmReqs = [tosBasher.get("forger")]
+    TPReqs = [tosBasher.get("bg")]
+    TSReqs = [tosBasher.get("trans"),tosBasher.get("trans"),tosBasher.get("escort")]
+    TIReqs = []
+    TkReqs = [tosBasher.get("vet")]
+    for i in range(0,1):
+        update(startlist,prks[0][0]+1,alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
 
-    for i in range(0,10000):
-        update(startlist,prks[0][0]+1)
-
-def update(clist,idx):
+def update(clist,idx,alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs):
     #print idx
     if idx == 16:
         #print "Found Solution"
@@ -166,133 +179,285 @@ def update(clist,idx):
         return True
     checkwise = list(queryList(idx))
     random.shuffle(checkwise)
+    print idx,clist,alreadyHave,checkwise
+
     while checkwise != []:
         next = checkwise.pop(0)
         if next == "RM" and clist[0] > 0:
-            for rMaf in RM:
-                if cPlayers[idx-1].possible[rMaf]:
-                    clist[0] -= 1
-                    setState(idx,"RM")
-                    q = update(clist,adjacent[idx])
-                    clist[0] += 1
-                    if q == True:
-                        return True
+            # First we need to checkwether number of RM slots left is greater lessthan or equal to RmReqs
+            if clist[0] > len(RmReqs):
+                for rMaf in RM:
+                    if cPlayers[idx-1].possible[rMaf] and not checkBit(alreadyHave,rMaf):
+                        Required = rMaf in RmReqs
+                        if Required:
+                            RmReqs.remove(rMaf)
+                        clist[0] -= 1
+                        setState(idx,"RM")
+                        q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
+                        clist[0] += 1
+                        if q == True:
+                            print idx,"was",tosBasher.roles[rMaf]," random MAFIA"
+                            return True
+                        if Required:
+                            RmReqs.append(rMaf)
+            elif clist[0] == len(RmReqs):
+                copy_RmReqs = list(RmReqs)
+                for rMaf in copy_RmReqs:
+                    if cPlayers[idx-1].possible[rMaf] and not checkBit(alreadyHave,rMaf):
+                        Required = rMaf in RmReqs
+                        RmReqs.remove(rMaf)
+                        clist[0] -= 1
+                        setState(idx,"RM")
+                        q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
+                        clist[0] += 1
+                        if q == True:
+                            print idx,"was",tosBasher.roles[rMaf]," random MAFIA"
+                            return True
+                        if Required:
+                            RmReqs.append(rMaf)
+            else:
+                print "More RM Claims than Slots :L"
+            #Done!
         elif next == "MAFIOSO" and clist[1] > 0:
             if cPlayers[idx-1].possible[tosBasher.get("mafioso")]:
                 clist[1] -= 1
                 setState(idx,"MAFIOSO")
-                q = update(clist,adjacent[idx])
+                q = update(clist,adjacent[idx],alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
                 clist[1] += 1
                 if q == True:
+                    print idx,"was mafisoso"
                     return True
         elif next == "GF" and clist[2] > 0:
             if cPlayers[idx-1].possible[tosBasher.get("gf")]:
                 clist[2] -= 1
                 setState(idx,"GF")
-                q = update(clist,adjacent[idx])
+                q = update(clist,adjacent[idx],alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
                 clist[2] += 1
                 if q == True:
+                    print idx,"was","gf"
                     return True
         elif next == "TP" and clist[3] > 0:
-            for rMaf in TP:
-                if cPlayers[idx-1].possible[rMaf]:
-                    clist[3] -= 1
-                    setState(idx,"TP")
-                    q = update(clist,adjacent[idx])
-                    clist[3] += 1
-                    if q == True:
-                        return True
+            if TPReqs != []:
+                copy_TP = list(TPReqs)
+                for rMaf in copy_TP:
+                    if cPlayers[idx-1].possible[rMaf] and not checkBit(alreadyHave,rMaf):
+                        clist[3] -= 1
+                        TPReqs.remove(rMaf)
+                        setState(idx,"TP")
+                        q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
+                        clist[3] += 1
+                        if q == True:
+                            print idx,"was",tosBasher.roles[rMaf]
+                            return True
+                        TPReqs.append(rMaf)
+            else:
+                for rMaf in TP:
+                    if cPlayers[idx-1].possible[rMaf] and not checkBit(alreadyHave,rMaf):
+                        clist[3] -= 1
+                        setState(idx,"TP")
+                        q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
+                        clist[3] += 1
+                        if q == True:
+                            print idx,"was",tosBasher.roles[rMaf]
+                            return True
         elif next == "TP" and clist[8] > 0:
-            for rMaf in TP:
-                if cPlayers[idx-1].possible[rMaf]:
-                    clist[8] -= 1
-                    setState(idx,"TP")
-                    q = update(clist,adjacent[idx])
-                    clist[8] += 1
-                    if q == True:
-                        return True
+            if len(TPReqs) != 0:
+                copy_TP = list(TPReqs)
+                for rMaf in copy_TP:
+                    if cPlayers[idx-1].possible[rMaf] and not checkBit(alreadyHave,rMaf):
+                        clist[8] -= 1
+                        TPReqs.remove(rMaf)
+                        setState(idx,"TP")
+                        q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
+                        clist[8] += 1
+                        if q == True:
+                            print idx,"was",tosBasher.roles[rMaf]
+                            return True
+                        TPReqs.append(rMaf)
+            elif len(TSReqs) == 0 and len(TkReqs) == 0 and len(TIReqs) == 0: # underassumption Tp Reqs is already empty
+                for rMaf in TP:
+                    if cPlayers[idx-1].possible[rMaf] and not checkBit(alreadyHave,rMaf):
+                        clist[8] -= 1
+                        setState(idx,"TP")
+                        q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
+                        clist[8] += 1
+                        if q == True:
+                            print idx,"was",tosBasher.roles[rMaf]
+                            return True
         elif next == "TK" and clist[4] > 0:
-            for rMaf in TK:
-                if cPlayers[idx-1].possible[rMaf]:
-                    clist[4] -= 1
-                    setState(idx,"TK")
-                    q = update(clist,adjacent[idx])
-                    clist[4] += 1
-                    if q == True:
-                        return True
+            if len(TkReqs) != 0:
+                copy_TK = list(TkReqs)
+                for rMaf in copy_TK:
+                    if cPlayers[idx-1].possible[rMaf] and not checkBit(alreadyHave,rMaf):
+                        TkReqs.remove(rMaf)
+                        clist[4] -= 1
+                        setState(idx,"TK")
+                        q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
+                        clist[4] += 1
+                        if q == True:
+                            print idx,"was",tosBasher.roles[rMaf]
+                            return True
+                        TkReqs.append(rMaf)
+            else:
+                 for rMaf in TK:
+                     if cPlayers[idx-1].possible[rMaf] and not checkBit(alreadyHave,rMaf):
+                         clist[4] -= 1
+                         setState(idx,"TK")
+                         q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
+                         clist[4] += 1
+                         if q == True:
+                             print idx,"was",tosBasher.roles[rMaf]
+                             return True
         elif next == "TK" and clist[8] > 0:
-            for rMaf in TK:
-                if cPlayers[idx-1].possible[rMaf]:
-                    clist[8] -= 1
-                    setState(idx,"TK")
-                    q = update(clist,adjacent[idx])
-                    clist[8] += 1
-                    if q == True:
-                        return True
+            if len(TkReqs) != 0:
+                copy_TK = list(TkReqs)
+                for rMaf in copy_TK:
+                    if cPlayers[idx-1].possible[rMaf] and not checkBit(alreadyHave,rMaf):
+                        TkReqs.remove(rMaf)
+                        clist[8] -= 1
+                        setState(idx,"TK")
+                        q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
+                        clist[8] += 1
+                        if q == True:
+                            print idx,"was",tosBasher.roles[rMaf]
+                            return True
+                        TkReqs.append(rMaf)
+            elif len(TSReqs) == 0 and len(TPReqs) == 0 and len(TIReqs) == 0:
+                 for rMaf in TK:
+                     if cPlayers[idx-1].possible[rMaf] and not checkBit(alreadyHave,rMaf):
+                         clist[8] -= 1
+                         setState(idx,"TK")
+                         q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
+                         clist[8] += 1
+                         if q == True:
+                             print idx,"was",tosBasher.roles[rMaf]
+                             return True
         elif next == "TS" and clist[5] > 0:
-            for rMaf in TS:
-                if cPlayers[idx-1].possible[rMaf]:
-                    clist[5] -= 1
-                    setState(idx,"TS")
-                    q = update(clist,adjacent[idx])
-                    clist[5] += 1
-                    if q == True:
-                        return True
+            if len(TSReqs) != 0:
+                copy_TS = list(TSReqs)
+                for rMaf in copy_TS:
+                    if cPlayers[idx-1].possible[rMaf] and not checkBit(alreadyHave,rMaf):
+                        clist[5] -= 1
+                        TSReqs.remove(rMaf)
+                        setState(idx,"TS")
+                        q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
+                        clist[5] += 1
+                        if q == True:
+                            print idx,"was",tosBasher.roles[rMaf]
+                            return True
+                        TSReqs.append(rMaf)
+            else:
+                for rMaf in TS:
+                    if cPlayers[idx-1].possible[rMaf] and not checkBit(alreadyHave,rMaf):
+                        clist[5] -= 1
+                        setState(idx,"TS")
+                        q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
+                        clist[5] += 1
+                        if q == True:
+                            return True
         elif next == "TS" and clist[8] > 0:
-            for rMaf in TS:
-                if cPlayers[idx-1].possible[rMaf]:
-                    clist[8] -= 1
-                    setState(idx,"TS")
-                    q = update(clist,adjacent[idx])
-                    clist[8] += 1
-                    if q == True:
-                        return True
+            if len(TSReqs) != 0:
+                copy_TS = list(TSReqs)
+                for rMaf in copy_TS:
+                    if cPlayers[idx-1].possible[rMaf] and not checkBit(alreadyHave,rMaf):
+                        clist[8] -= 1
+                        TSReqs.remove(rMaf)
+                        setState(idx,"TS")
+                        q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
+                        clist[8] += 1
+                        if q == True:
+                            print idx,"was",tosBasher.roles[rMaf]
+                            return True
+                        TSReqs.append(rMaf)
+            elif len(TPReqs) == 0 and len(TkReqs) == 0 and len(TIReqs) == 0:
+                for rMaf in TS:
+                    if cPlayers[idx-1].possible[rMaf] and not checkBit(alreadyHave,rMaf):
+                        clist[8] -= 1
+                        setState(idx,"TS")
+                        q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
+                        clist[8] += 1
+                        if q == True:
+                            print idx,"was",tosBasher.roles[rMaf]
+                            return True
         elif next == "Jailor" and clist[6] > 0:
             if cPlayers[idx-1].possible[tosBasher.get("jailor")]:
                 clist[6] -= 1
                 setState(idx,"Jailor")
-                q = update(clist,adjacent[idx])
+                q = update(clist,adjacent[idx],alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
                 clist[6] += 1
                 if q == True:
+                    print idx,"was","jailer"
                     return True
         elif next == "TI" and clist[7] > 0:
-            for rMaf in TI:
-                if cPlayers[idx-1].possible[rMaf]:
-                    clist[7] -= 1
-                    setState(idx,"TI")
-                    q = update(clist,adjacent[idx])
-                    clist[7] += 1
-                    if q == True:
-                        return True
+            if len(TIReqs) != 0:
+                copy_TK = list(TIReqs)
+                for rMaf in copy_TK:
+                    if cPlayers[idx-1].possible[rMaf] and not checkBit(alreadyHave,rMaf):
+                        clist[7] -= 1
+                        TIReqs.remove(rMaf)
+                        setState(idx,"TI")
+                        q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
+                        clist[7] += 1
+                        if q == True:
+                            print idx,"was",tosBasher.roles[rMaf]
+                            return True
+                        TIReqs.append(rMaf)
+            else:
+                for rMaf in TI:
+                    if cPlayers[idx-1].possible[rMaf] and not checkBit(alreadyHave,rMaf):
+                        clist[7] -= 1
+                        setState(idx,"TI")
+                        q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
+                        clist[7] += 1
+                        if q == True:
+                            print idx,"was",tosBasher.roles[rMaf]
+                            return True
         elif next == "TI" and clist[8] > 0:
-            for rMaf in TI:
-                if cPlayers[idx-1].possible[rMaf]:
-                    clist[8] -= 1
-                    setState(idx,"TI")
-                    q = update(clist,adjacent[idx])
-                    clist[8] += 1
-                    if q == True:
-                        return True
+            if len(TIReqs) != 0:
+                copy_TK = list(TIReqs)
+                for rMaf in copy_TK:
+                    if cPlayers[idx-1].possible[rMaf] and not checkBit(alreadyHave,rMaf):
+                        clist[8] -= 1
+                        TIReqs.remove(rMaf)
+                        setState(idx,"TI")
+                        q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
+                        clist[8] += 1
+                        if q == True:
+                            print idx,"was",tosBasher.roles[rMaf]
+                            return True
+                        TIReqs.append(rMaf)
+            elif len(TSReqs) == 0 and len(TkReqs) == 0 and len(TPReqs) == 0:
+                for rMaf in TI:
+                    if cPlayers[idx-1].possible[rMaf] and not checkBit(alreadyHave,rMaf):
+                        clist[8] -= 1
+                        setState(idx,"TI")
+                        q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
+                        clist[8] += 1
+                        if q == True:
+                            print idx,"was",tosBasher.roles[rMaf]
+                            return True
         elif next == "NK" and clist[9] > 0:
             for rMaf in NK:
                 if cPlayers[idx-1].possible[rMaf] and rMaf in EXPLNK:
                     clist[9] -= 1
                     setState(idx,"NK")
-                    q = update(clist,adjacent[idx])
+                    q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
                     clist[9] += 1
                     if q == True:
+                        print idx,"was",tosBasher.roles[rMaf]
                         return True
         elif next == "NE" and clist[10] > 0:
             for rMaf in NE:
                 if cPlayers[idx-1].possible[rMaf] and rMaf in EXPLNE:
                     clist[10] -= 1
                     setState(idx,"NE")
-                    q = update(clist,adjacent[idx])
+                    q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
                     clist[10] += 1
                     if q == True:
+                        print idx,"was",tosBasher.roles[rMaf]
                         return True
-#    if adjacent[idx] == 16:
-#        print "Ran out of options: ",idx,adjacent[idx],clist,queryList(idx),"didnt fit last min"
-#    else:
-#        print "Ran out of options: ",idx,adjacent[idx],clist,queryList(idx)
-#    return False
+    if adjacent[idx] == 16:
+        print "Ran out of options: ",idx,adjacent[idx],clist,queryList(idx),"didnt fit last min"
+    else:
+        print "Ran out of options: ",idx,adjacent[idx],clist,queryList(idx)
+    return False
