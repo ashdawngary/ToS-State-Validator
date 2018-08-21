@@ -71,11 +71,18 @@ class CurrentPerson:
     def onClaim(self,role):
         # always consider that it could be Random Mafia unless they are confirmed
         # consider that they maybe be either mafia / jester / or the role that they claim / or some crappy NK claim.
+        tonotblock = RM + range(23,29)+[role,roles.index("vet")]
+        for i in range(0,29):
+            if not i in tonotblock:
+                self.possible[i] = False
+        '''
         for random_mafia in RM:
-            self.possible[random_mafia] = True
-        self.claim[roles.index("jester")] = True
-        self.claim[role] = True
-        self.claim[roles.index("vet")]  =True # could be some crappy vet bait we never know
+            self.possible[random_mafia] &= True
+        for i in range(23,28):
+            self.possible[role] &= True
+        self.possible[role] &= True
+        self.possible[roles.index("vet")]  &=True # could be some crappy vet bait we never know
+        '''
         self.updateEntity()
     def onInvestResults(self,role):
         #invest results take over, we can only expect that the person is one of the three.

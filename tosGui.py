@@ -35,6 +35,12 @@ def oninvest():
     while not targetRole in tosCore.roles:
         targetRole = getString("Investigative","Role")
     smartFitter.player_oninvest(targetidx,targetRole)
+def usrClaim():
+    targetidx = getRole("usr claim","User Number")
+    targetRole = getString("usr claim","Role")
+    while not targetRole in tosCore.roles:
+        targetRole = getString("usr claim","Role")
+    smartFitter.player_onclaim(targetidx,targetRole)
 def confirmIt():
     targetidx = getRole("Confirmed","User Number")
     targetRole = getString("Confirmed","Role")
@@ -57,8 +63,8 @@ def onDeath():
         smartFitter.confirmed_deathGF(targetidx)
     elif targetRole == "MAFIOSO":
         smartFitter.confirmed_deathMafioso(targetidx)
-    else:
-        smartFitter.confirmed_death(targetidx,targetRole)
+    elif not contradiction:
+        smartFitter.confirmed_sure(targetidx,targetRole)
 def setNK():
     targetRole = getString("Define NK","Role")
     if targetRole == None or not targetRole in ["ww","arso","sk"]:
@@ -91,6 +97,9 @@ def getSheriffDetails():
         smartFitter.confirmed_isInno(usr)
     else:
         smartFitter.confirmed_isMafia(usr)
+def visitRole():
+    usr = getRole("LO visit Results","Number")
+    smartFitter.applyvisiting(usr)
 oninvestigative = Button(text = "Invest Results",command = oninvest)
 onDeath = Button(text = "Death Results",command = onDeath)
 onNK = Button(text = "set NK",command = setNK)
@@ -99,12 +108,15 @@ onReclaulate = Button(text = "Update Monte Carlo",command=prepReupdate)
 onSpy = Button(text="Spy Detail Update",command=getSpyDetails)
 onSheriff = Button(text="Sheriff Detail Update",command=getSheriffDetails)
 onConfirmed = Button(text = "confirm someone",command = confirmIt)
+onVFRClaim = Button(text = "user claim",command=usrClaim)
+onVisitng  = Button(text = "visitng Role", command=visitRole)
 oninvestigative.place(x=600,y=0)
 onReclaulate.place(x=700,y=0)
 onSpy.place(x=700,y=50)
 onSheriff.place(x=700,y=100)
 onConfirmed.place(x=700,y=150)
 onDeath.place(x=600,y=50)
+onVFRClaim.place(x=700,y=200)
 onNK.place(x=600,y=100)
 onNE.place(x=600,y=150)
 rePopulate()
