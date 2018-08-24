@@ -3,10 +3,10 @@ assert int(sys.version[0]) ==   2,"must be running python 2 running python %s"%(
 from Tkinter import *
 from TkinterTosEssentials import *
 import smartFitter
-
+import contingencyBox
 nH = None
 cValues = None
-
+contingencyFrame = None
 master = Tk()
 setMasterToLift(master)
 master.geometry("1200x700")
@@ -85,7 +85,7 @@ def async_fitClaims():
     TIR = []
     TKR = []
     RMR = []
-    q = filter(lambda x: x in tosCore.roles,loadContingencies())
+    q = filter(lambda x: x in tosCore.roles,contingencyBox.loadContingencies())
     print "Revised: ",q
     for i in q:
         id = tosCore.get(i)
@@ -128,18 +128,22 @@ def onlyClaim():
             smartFitter.player_onclaim(i,onlyClaimRole)
         else:
             smartFitter.player_roleRemove(i,onlyClaimRole)
-def addRoleContingency():
-    role = getTOSRole("Contingency","Role Must Exist: ")
-    mustBeList.insert(END,role)
-def delRoleContingency():
-    mustBeList.delete(ANCHOR)
-def loadContingencies():
-    cont_roles = mustBeList.get(0,END)
-    return list(cont_roles)
-def initBase(master):
-    global cValues,nH
+
+def initSpecialResults(master):
+    global resFrame
+    resFrame = Frame(master,width=400,height=100)
+    onSpy =           Button(resFrame,text="Spy Detail Update",command=getSpyDetails)
+    onSheriff =       Button(resFrame,text="Sheriff Detail Update",command=getSheriffDetails)
+    oninvestigative = Button(resFrame,text = "Invest Results",command = oninvest)
+    onVisitng  =      Button(resFrame,text = "LO visitng Role", command=visitRole)
+    onSpy.place(x=0,y=0)
+    onSheriff.place(x=150,y=0)
+    oninvestigative.place(x=300,y=0)
+    onVisitng.place(x=150,y=30)
+    resFrame.place(x=700,y=500)
+def loadNames(master):
+    global nH
     GenericName = "Chumps"
-    cNames = ["Player%s"%(i) for i in range(1,16)]
     nH = []
     for i in range(0,15):
         if GenericName == "":
@@ -149,7 +153,28 @@ def initBase(master):
         nH.append(Label(master,text="%s(%s)"%(name,i+1)))
         nH[-1].place(x=5,y=50+30*i)
         nH[-1].bind("<Button-1>",lambda event,ix=i:resetName(ix))
+def loadEvilSetters(master):
+    evilFrame = Frame(master,width=100,height=100)
+    onNK =            Button(evilFrame,text = "set NK",command = setNK)
+    onNE =            Button(evilFrame,text = "set NE",command = setNE)
+    evilFrame.place(x=800,y=100)
+    onNK.place(x=0,y=0)
+    onNE.place(x=0,y=50)
+def loadPlayerClaims(master):
+    playerFrame =Frame(master,width=200,height=300)
+    onConfirmed =     Button(playerFrame,text = "confirm someone",command = confirmIt)
+    onVFRClaim =      Button(playerFrame,text = "user claim",command=usrClaim)
+    onlyClaimB =       Button(playerFrame,text = "OnlyClaim",command=onlyClaim)
+    playerFrame.place(x=900,y=0)
+    onlyClaimB.place(x=0,y=250)
+    onConfirmed.place(x=0,y=150)
+    onVFRClaim.place(x=0,y=200)
 
+def initBase(master):
+    global cValues,nH
+    global mustBeList
+    contingencyBox.initContingency(master)
+    loadNames(master)
     psudotypes = list(smartFitter.types)
     psudotypes.pop(8)
     headerLabel = Label(master,text=' '.join(map(lambda x: x.ljust(7),psudotypes)))
@@ -159,36 +184,18 @@ def initBase(master):
     for i in range(0,len(cLabels)):
         for j in range(0,10):
             cLabels[i][j].place(x=120+60*(j),y=50+(30*i))
-    oninvestigative = Button(master,text = "Invest Results",command = oninvest)
+    initSpecialResults(master)
+    loadEvilSetters(master)
+    loadPlayerClaims(master)
     onDeathB =         Button(master,text = "Death Results",command = onDeath)
-    onNK =            Button(master,text = "set NK",command = setNK)
-    onNE =            Button(master,text = "set NE",command = setNE)
     onReclaulate =    Button(master,text = "Update Monte Carlo",command=prepReupdate)
-    onSpy =           Button(master,text="Spy Detail Update",command=getSpyDetails)
-    onSheriff =       Button(master,text="Sheriff Detail Update",command=getSheriffDetails)
-    onConfirmed =     Button(master,text = "confirm someone",command = confirmIt)
-    onVFRClaim =      Button(master,text = "user claim",command=usrClaim)
-    onVisitng  =      Button(master,text = "visitng Role", command=visitRole)
-    onlyClaimB =       Button(master,text = "OnlyClaim",command=onlyClaim)
-    addCont =         Button(master,text = "Add Role Contingency",command=addRoleContingency)
-    delCont =         Button(master,text = "Del Role Contingency",command=delRoleContingency)
-    mustBeList =      Listbox(master)
-    mustBeList.place(x=800,y=400)
-    addCont.place(x=0,y=600)
-    delCont.place(x=300,y=600)
-    oninvestigative.place(x=800,y=0)
+
     onReclaulate.place(x=900,y=0)
-    onSpy.place(x=900,y=50)
-    onSheriff.place(x=900,y=100)
-    onConfirmed.place(x=900,y=150)
+
     onDeathB.place(x=800,y=50)
-    onVFRClaim.place(x=900,y=200)
-    onVisitng.place(x=800,y=200)
-    onlyClaimB.place(x=900,y=250)
-    onNK.place(x=800,y=100)
-    onNE.place(x=800,y=150)
+
 initBase(master)
-if __name__ == "init":
+if __name__ == "__main__":
     rePopulate()
     master.mainloop()
 # we can run windows specific commands now.
