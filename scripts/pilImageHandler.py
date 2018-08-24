@@ -3,6 +3,9 @@ ocr image graber, interfaced into tkinter.
 use pageflipping to rapidly display images.
 '''
 import ImageTk
+currentLoader = None
+currentLabel = None
+
 class PageFlipperImageDisplayer:
     def __init__(self,predef,labelInstance):
         '''
@@ -33,3 +36,9 @@ class PageFlipperImageDisplayer:
             self.newest = newim
     def queryNewestImage(self):
         return self.newest
+
+def initVision(master):
+    global currentLoader,currentLabel
+    currentLabel = Label(master)
+    currentLabel.place(x=0,y=650)
+    currentLoader = PageFlipperImageDisplayer()
