@@ -3,7 +3,7 @@ ocr image graber, interfaced into tkinter.
 use pageflipping to rapidly display images.
 '''
 from Tkinter import *
-from PIL import Image,ImageTk
+from PIL import Image,ImageTk,ImageGrab
 currentLoader = None
 currentLabel = None
 
@@ -23,19 +23,20 @@ class PageFlipperImageDisplayer:
     def write(self,newim):
         if self.modewrite and not self.p1write:
             # write page 1
-            self.modewrite = not self.modewrite
             self.p1write = True
             self.page1 = ImageTk.PhotoImage(newim)
             self.p1write = False
             self.cLabelInstance.config(image=self.page1)
             self.newest = newim
-        elif not self.modewrite and not self.p2write:
             self.modewrite = not self.modewrite
-            self.p1write = True
+        elif not self.modewrite and not self.p2write:
+            self.p2write = True
             self.page2 = ImageTk.PhotoImage(newim)
             self.p2write = False
-            self.cLabelInstance.config(image=self.page1)
+            self.cLabelInstance.config(image=self.page2)
             self.newest = newim
+            self.modewrite = not self.modewrite
+        print 'trashed',self.modewrite,self.p1write,self.p2write
     def queryNewestImage(self):
         return self.newest
 def getAsset(asset):
@@ -56,3 +57,12 @@ def initVision(master):
     currentLabel.place(x=300,y=550)
     currentLoader = PageFlipperImageDisplayer(getAsset("placeholder_buffer.gif"),currentLabel)
     currentLoader.write(getAsset("placeholder_buffer.gif"))
+def flipToGeneric():
+    # Flips image to generic
+    global currentLoader
+    currentLoader.write(getAsset("placeholder_buffer.gif"))
+def onImage(cimg):
+    print "Writing on Image"
+    # do OCR stuff
+    global currentLoader
+    currentLoader.write(cimg)

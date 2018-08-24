@@ -19,8 +19,18 @@ def configureKeyBinds():
     master.bind("<Escape>",terminateCorner)
 def terminateCorner(event=None):
     global update_left,update_right
-    update_left = False
-    update_right = False
+    if update_left and update_right:
+        update_left = False
+        return
+    elif update_right and not update_left:
+        if event != None:
+            update_right= False
+            return
+    elif update_left and not update_right:
+        update_left = False
+    else:
+        update_left =False
+        update_right = False
     LeftCornerLabel['text'] = 'UL: %s %s'%(LeftCorner[0],LeftCorner[1])
     RightCornerLabel['text'] = "DR: %s %s"%(RightCorner[0],RightCorner[1])
 def onLeftUpdate():

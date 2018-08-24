@@ -4,17 +4,18 @@ Windows Specific Gui
 import tosGui
 import pilImageHandler
 import cordinateTracker
-from PIL import ImageGrab
 
 from Tkinter import *
 master = tosGui.master
 
 def extractImage():
-    current_screen = pilImageHandler.extractImage(cordinateTracker.getUL(),cordinateTracker.getDR())
+    global master
+    current_screen = pilImageHandler.takeImage(cordinateTracker.getUL(),cordinateTracker.getDR())
     if min(current_screen.size) == 0:
         pilImageHandler.flipToGeneric()
     else:
         pilImageHandler.onImage(current_screen)
+    master.after(70,extractImage)
 def initWindows(master):
     pilImageHandler.initVision(master)
     cordinateTracker.initTracker(master)
@@ -23,5 +24,6 @@ def initWindows(master):
 
 
 initWindows(master)
+extractImage()
 tosGui.rePopulate()
 master.mainloop()
