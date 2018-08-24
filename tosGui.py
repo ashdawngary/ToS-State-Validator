@@ -195,6 +195,8 @@ def initBase(master):
     onDeathB.place(x=800,y=50)
 
 initBase(master)
+print __name__
+
 if __name__ == "__main__":
     rePopulate()
     master.mainloop()
