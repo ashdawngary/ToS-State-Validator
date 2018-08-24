@@ -6,6 +6,7 @@ class CurrentPerson:
         self.visiting = 0
         self.possible = [True for i in range(0,29)] # 28 possible roles technically
         self.mafvisit = False
+        self.claimagainst = []
     def mafiavisited(self):
         self.mafvisit = True
         for i in range(0,9):
@@ -22,6 +23,8 @@ class CurrentPerson:
         self.clear()
         self.possible[3] = True # could be disguiser
         self.possible[appeared] = True
+    def exempt(self,rols):
+        self.claimagainst.append(rols)
     def clear(self):
         for i in range(0,29):
             self.possible[i] = False
@@ -97,6 +100,8 @@ class CurrentPerson:
             self.mafiavisited()
         elif self.visiting == 1:
             self.applyvisiting()
+        for i in claimagainst:
+            self.possible[claimagainst] = False
     def confirmedSelf(self,role):
         self.clear()
         self.possible[role] = True

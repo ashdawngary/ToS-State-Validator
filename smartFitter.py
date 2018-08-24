@@ -52,6 +52,8 @@ def player_onclaim(idx,role):
     cPlayers[idx-1].onClaim(tosBasher.get(role))
 def player_oninvest(idx,role):
     cPlayers[idx-1].onInvestResults(tosBasher.get(role))
+def player_roleRemove(idx,role):
+    cPlayers[idx-1].exempt(tosBasher.get(role))
 def confirmed_isMafia(idx):
     cPlayers[idx-1].isMafia()
 def confirmed_isInno(idx):
@@ -145,7 +147,7 @@ def project():
 def rst():
     global cmatr
     cmatr = [[0]*len(types) for i in range(0,15)]
-def fitClaims():
+def fitClaims(RmReqs= [],TPReqs=[],TSReqs = [],TIReqs = [],TkReqs = [],usize = 1):
     clearList()
     for i in range(0,15):
         queryList(i)
@@ -154,32 +156,28 @@ def fitClaims():
     cTime = 1
     for v in prks:
         cTime *= v[1]
-    print cTime
-    print prks
-    print "TenPower: "+str(math.log(cTime)/math.log(10))
+    #print cTime
+    #print prks
+    #print "TenPower: "+str(math.log(cTime)/math.log(10))
      # now we can intialize our basher
     startlist = list(cFit)
     for i in range(0,len(prks)-1):
         adjacent[prks[i][0] + 1] = prks[i+1][0] + 1
     adjacent[prks[len(prks)-1][0] + 1] = 16
     alreadyHave = {tosBasher.get("vet"):False,tosBasher.get("ret"):False,tosBasher.get("mayor"):False} # vet is unique role, same as retri
-    RmReqs = [tosBasher.get("forger")]
-    TPReqs = [tosBasher.get("bg")]
-    TSReqs = [tosBasher.get("trans"),tosBasher.get("trans"),tosBasher.get("escort")]
-    TIReqs = []
-    TkReqs = [tosBasher.get("vet")]
-    for i in range(0,1):
+
+    for i in range(0,usize):
         update(startlist,prks[0][0]+1,alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
 
 def update(clist,idx,alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs):
-    #print idx
+    ##print idx
     if idx == 16:
-        #print "Found Solution"
+        ##print "Found Solution"
         push()
         return True
     checkwise = list(queryList(idx))
     random.shuffle(checkwise)
-    print idx,clist,alreadyHave,checkwise
+    #print idx,clist,alreadyHave,checkwise
 
     while checkwise != []:
         next = checkwise.pop(0)
@@ -196,7 +194,7 @@ def update(clist,idx,alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs):
                         q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
                         clist[0] += 1
                         if q == True:
-                            print idx,"was",tosBasher.roles[rMaf]," random MAFIA"
+                            #print idx,"was",tosBasher.roles[rMaf]," random MAFIA"
                             return True
                         if Required:
                             RmReqs.append(rMaf)
@@ -211,12 +209,13 @@ def update(clist,idx,alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs):
                         q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
                         clist[0] += 1
                         if q == True:
-                            print idx,"was",tosBasher.roles[rMaf]," random MAFIA"
+                            #print idx,"was",tosBasher.roles[rMaf]," random MAFIA"
                             return True
                         if Required:
                             RmReqs.append(rMaf)
             else:
-                print "More RM Claims than Slots :L"
+                pass
+                #print "More RM Claims than Slots :L"
             #Done!
         elif next == "MAFIOSO" and clist[1] > 0:
             if cPlayers[idx-1].possible[tosBasher.get("mafioso")]:
@@ -225,7 +224,7 @@ def update(clist,idx,alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs):
                 q = update(clist,adjacent[idx],alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
                 clist[1] += 1
                 if q == True:
-                    print idx,"was mafisoso"
+                    #print idx,"was mafisoso"
                     return True
         elif next == "GF" and clist[2] > 0:
             if cPlayers[idx-1].possible[tosBasher.get("gf")]:
@@ -234,7 +233,7 @@ def update(clist,idx,alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs):
                 q = update(clist,adjacent[idx],alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
                 clist[2] += 1
                 if q == True:
-                    print idx,"was","gf"
+                    #print idx,"was","gf"
                     return True
         elif next == "TP" and clist[3] > 0:
             if TPReqs != []:
@@ -247,7 +246,7 @@ def update(clist,idx,alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs):
                         q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
                         clist[3] += 1
                         if q == True:
-                            print idx,"was",tosBasher.roles[rMaf]
+                            #print idx,"was",tosBasher.roles[rMaf]
                             return True
                         TPReqs.append(rMaf)
             else:
@@ -258,7 +257,7 @@ def update(clist,idx,alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs):
                         q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
                         clist[3] += 1
                         if q == True:
-                            print idx,"was",tosBasher.roles[rMaf]
+                            #print idx,"was",tosBasher.roles[rMaf]
                             return True
         elif next == "TP" and clist[8] > 0:
             if len(TPReqs) != 0:
@@ -271,7 +270,7 @@ def update(clist,idx,alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs):
                         q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
                         clist[8] += 1
                         if q == True:
-                            print idx,"was",tosBasher.roles[rMaf]
+                            #print idx,"was",tosBasher.roles[rMaf]
                             return True
                         TPReqs.append(rMaf)
             elif len(TSReqs) == 0 and len(TkReqs) == 0 and len(TIReqs) == 0: # underassumption Tp Reqs is already empty
@@ -282,7 +281,7 @@ def update(clist,idx,alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs):
                         q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
                         clist[8] += 1
                         if q == True:
-                            print idx,"was",tosBasher.roles[rMaf]
+                            #print idx,"was",tosBasher.roles[rMaf]
                             return True
         elif next == "TK" and clist[4] > 0:
             if len(TkReqs) != 0:
@@ -295,7 +294,7 @@ def update(clist,idx,alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs):
                         q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
                         clist[4] += 1
                         if q == True:
-                            print idx,"was",tosBasher.roles[rMaf]
+                            #print idx,"was",tosBasher.roles[rMaf]
                             return True
                         TkReqs.append(rMaf)
             else:
@@ -306,7 +305,7 @@ def update(clist,idx,alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs):
                          q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
                          clist[4] += 1
                          if q == True:
-                             print idx,"was",tosBasher.roles[rMaf]
+                             #print idx,"was",tosBasher.roles[rMaf]
                              return True
         elif next == "TK" and clist[8] > 0:
             if len(TkReqs) != 0:
@@ -319,7 +318,7 @@ def update(clist,idx,alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs):
                         q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
                         clist[8] += 1
                         if q == True:
-                            print idx,"was",tosBasher.roles[rMaf]
+                            #print idx,"was",tosBasher.roles[rMaf]
                             return True
                         TkReqs.append(rMaf)
             elif len(TSReqs) == 0 and len(TPReqs) == 0 and len(TIReqs) == 0:
@@ -330,7 +329,7 @@ def update(clist,idx,alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs):
                          q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
                          clist[8] += 1
                          if q == True:
-                             print idx,"was",tosBasher.roles[rMaf]
+                             #print idx,"was",tosBasher.roles[rMaf]
                              return True
         elif next == "TS" and clist[5] > 0:
             if len(TSReqs) != 0:
@@ -343,7 +342,7 @@ def update(clist,idx,alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs):
                         q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
                         clist[5] += 1
                         if q == True:
-                            print idx,"was",tosBasher.roles[rMaf]
+                            #print idx,"was",tosBasher.roles[rMaf]
                             return True
                         TSReqs.append(rMaf)
             else:
@@ -366,7 +365,7 @@ def update(clist,idx,alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs):
                         q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
                         clist[8] += 1
                         if q == True:
-                            print idx,"was",tosBasher.roles[rMaf]
+                            #print idx,"was",tosBasher.roles[rMaf]
                             return True
                         TSReqs.append(rMaf)
             elif len(TPReqs) == 0 and len(TkReqs) == 0 and len(TIReqs) == 0:
@@ -377,7 +376,7 @@ def update(clist,idx,alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs):
                         q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
                         clist[8] += 1
                         if q == True:
-                            print idx,"was",tosBasher.roles[rMaf]
+                            #print idx,"was",tosBasher.roles[rMaf]
                             return True
         elif next == "Jailor" and clist[6] > 0:
             if cPlayers[idx-1].possible[tosBasher.get("jailor")]:
@@ -386,7 +385,7 @@ def update(clist,idx,alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs):
                 q = update(clist,adjacent[idx],alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
                 clist[6] += 1
                 if q == True:
-                    print idx,"was","jailer"
+                    #print idx,"was","jailer"
                     return True
         elif next == "TI" and clist[7] > 0:
             if len(TIReqs) != 0:
@@ -399,7 +398,7 @@ def update(clist,idx,alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs):
                         q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
                         clist[7] += 1
                         if q == True:
-                            print idx,"was",tosBasher.roles[rMaf]
+                            #print idx,"was",tosBasher.roles[rMaf]
                             return True
                         TIReqs.append(rMaf)
             else:
@@ -410,7 +409,7 @@ def update(clist,idx,alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs):
                         q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
                         clist[7] += 1
                         if q == True:
-                            print idx,"was",tosBasher.roles[rMaf]
+                            #print idx,"was",tosBasher.roles[rMaf]
                             return True
         elif next == "TI" and clist[8] > 0:
             if len(TIReqs) != 0:
@@ -423,7 +422,7 @@ def update(clist,idx,alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs):
                         q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
                         clist[8] += 1
                         if q == True:
-                            print idx,"was",tosBasher.roles[rMaf]
+                            #print idx,"was",tosBasher.roles[rMaf]
                             return True
                         TIReqs.append(rMaf)
             elif len(TSReqs) == 0 and len(TkReqs) == 0 and len(TPReqs) == 0:
@@ -434,7 +433,7 @@ def update(clist,idx,alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs):
                         q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
                         clist[8] += 1
                         if q == True:
-                            print idx,"was",tosBasher.roles[rMaf]
+                            #print idx,"was",tosBasher.roles[rMaf]
                             return True
         elif next == "NK" and clist[9] > 0:
             for rMaf in NK:
@@ -444,7 +443,7 @@ def update(clist,idx,alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs):
                     q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
                     clist[9] += 1
                     if q == True:
-                        print idx,"was",tosBasher.roles[rMaf]
+                        #print idx,"was",tosBasher.roles[rMaf]
                         return True
         elif next == "NE" and clist[10] > 0:
             for rMaf in NE:
@@ -454,10 +453,12 @@ def update(clist,idx,alreadyHave,RmReqs,TPReqs,TSReqs,TIReqs,TkReqs):
                     q = update(clist,adjacent[idx],enableBit(alreadyHave,rMaf),RmReqs,TPReqs,TSReqs,TIReqs,TkReqs)
                     clist[10] += 1
                     if q == True:
-                        print idx,"was",tosBasher.roles[rMaf]
+                        #print idx,"was",tosBasher.roles[rMaf]
                         return True
     if adjacent[idx] == 16:
-        print "Ran out of options: ",idx,adjacent[idx],clist,queryList(idx),"didnt fit last min"
+        pass
+        #print "Ran out of options: ",idx,adjacent[idx],clist,queryList(idx),"didnt fit last min"
     else:
-        print "Ran out of options: ",idx,adjacent[idx],clist,queryList(idx)
+        pass
+        #print "Ran out of options: ",idx,adjacent[idx],clist,queryList(idx)
     return False
