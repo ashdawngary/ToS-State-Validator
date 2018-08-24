@@ -1,3 +1,8 @@
+'''
+DEPRICATED
+This is v1.  We will move to v2 which will feature more smoother stuff such as bottom up claiming.  Bottom up claiming is where the lower sectors have higher constraints and higher sectors can be more fluid.
+'''
+
 import tosBasher
 import random
 cPlayers = [tosBasher.CurrentPerson() for i in range(0,15)]
@@ -29,8 +34,6 @@ def confirmed_isMafia(idx):
     cPlayers[idx-1].isMafia()
 cFit = [2,1,1,1,1,1,1,2,3,1,1]
 types= ["RM","MAFIOSO","GF","TP","TK","TS","Jailor","TI","RT","NK","NE"]
-'''
-This is v1.  We will move to v2 which will feature more smoother stuff such as bottom up claiming.  Bottom up claiming is where the lower sectors have higher constraints and higher sectors can be more fluid.'''
 
 def update(clist,idx):
     print idx
