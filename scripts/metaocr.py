@@ -13,7 +13,7 @@ def filter(realimage):
         return realimage
     for xval in range(0,xsz):
         for yval in range(0,ysz):
-            if euclidRGB(realimage.getpixel((xval,yval)),(255,255,255)) < 50:
+            if euclidRGB(realimage.getpixel((xval,yval)),(255,255,255)) < 70:
                 newimage.putpixel((xval,yval),(0,0,0))
     return newimage
 def euclidRGB(fcolor,scolor):

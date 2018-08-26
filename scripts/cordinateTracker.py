@@ -15,8 +15,8 @@ def getUL():
     return LeftCorner
 def getDR():
     return RightCorner
-def configureKeyBinds():
-    master.bind("<Escape>",terminateCorner)
+def initKeyBinds(globalMaster):
+    globalMaster.bind("<Escape>",terminateCorner)
 def terminateCorner(event=None):
     global update_left,update_right
     if update_left and update_right:
@@ -69,13 +69,13 @@ def initTracker(recMaster):
     global LeftCornerLabel
     global RightCornerLabel
     master = recMaster
-    configureKeyBinds()
     cMouseCords = Label(master,text = "Is this mouse position working?")
     LeftCornerLabel = Label(master,text='UL: %s %s'%(LeftCorner[0],LeftCorner[1]))
     RightCornerLabel = Label(master,text="DR: %s %s"%(RightCorner[0],RightCorner[1]))
     LeftCornerLabel.bind("<Button-1>",editLeft)
     RightCornerLabel.bind("<Button-1>",editRight)
-    cMouseCords.place(x=10,y=600)
-    LeftCornerLabel.place(x=10,y=560)
-    RightCornerLabel.place(x=10,y=580)
+    topLine = 10
+    cMouseCords.place(x=10,y=topLine+40)
+    LeftCornerLabel.place(x=10,y=topLine)
+    RightCornerLabel.place(x=10,y=topLine+20)
     mouseUpdate()

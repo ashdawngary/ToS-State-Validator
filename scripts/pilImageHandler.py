@@ -2,11 +2,16 @@
 ocr image graber, interfaced into tkinter.
 use pageflipping to rapidly display images.
 '''
+import ocrReader
 from Tkinter import *
 from PIL import Image,ImageTk,ImageGrab
+import time
 currentLoader = None
 currentLabel = None
 genericBackgroundAsset = None
+statusLabel = None
+ocrLabel = None
+timeLabel = None
 class PageFlipperImageDisplayer:
     def __init__(self,predef,labelInstance):
         '''
@@ -52,20 +57,52 @@ def takeImage(c1,c2):
     down =  max(c1[1],c2[1])
     return ImageGrab.grab(bbox=(left,up,right,down))
 def initVision(master):
-    global currentLoader,currentLabel,genericBackgroundAsset
+    global currentLoader
+    global currentLabel
+    global genericBackgroundAsset
+    global statusLabel
+    global ocrLabel
+    global timeLabel
     genericBackgroundAsset = getAsset("placeholder_buffer.gif")
     currentLabel = Label(master)
-    currentLabel.place(x=300,y=550)
+    currentLabel.place(x=300,y=30)
+    statusLabel = Label(master)
+    statusLabel.place(x=300,y=10)
+    statusLabel.config(fg='red')
+    statusLabel['text'] = "not active"
+    ocrLabel = Label(master)
+    ocrLabel.place(x=10,y=500)
+    ocrLabel['text'] = "no data supplied."
+    timeLabel = Label(master)
+    timeLabel.place(x=700,y=500)
+    timeLabel['text'] = "waiting for data"
     currentLoader = PageFlipperImageDisplayer(genericBackgroundAsset,currentLabel)
     currentLoader.write(genericBackgroundAsset)
+def setActive():
+    global statusLabel
+    statusLabel.config(fg='green')
+    statusLabel['text'] = "computing..."
+def setInactive():
+    global statusLabel
+    statusLabel.config(fg='red')
+    statusLabel['text'] = "not active"
+
 def flipToGeneric():
     # Flips image to generic
     global currentLoader
     global genericBackgroundAsset
     currentLoader.write(genericBackgroundAsset)
-def onImage(cimg):
+def onImage(cimg,ocr=False):
     #print "Writing on Image"
     # do OCR stuff
     global currentLoader
     currentLoader.write(cimg)
+    if ocr:
+        updateOCR(cimg)
     #filter by white idk?
+def updateOCR(cim):
+    global ocrLabel
+    global timeLabel
+    startTime = time.time()
+    ocrLabel['text'] = ocrReader.readImage(cim)
+    timeLabel['text'] = "Tesseract Read Time: %s"%(round(time.time()-startTime,2))
