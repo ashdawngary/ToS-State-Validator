@@ -7,10 +7,7 @@ import contingencyBox
 nH = None
 cValues = None
 contingencyFrame = None
-master = Tk()
-setMasterToLift(master)
-master.geometry("1200x700")
-
+master = None
 def resetName(id):
     global NH
     name= getString("General","Name of %s"%(id+1))
@@ -171,9 +168,11 @@ def loadPlayerClaims(master):
     onConfirmed.place(x=0,y=150)
     onVFRClaim.place(x=0,y=200)
 
-def initBase(master):
+def initBase(loadingMaster):
     global cValues,nH
     global mustBeList
+    global master
+    master =  loadingMaster
     contingencyBox.initContingency(master)
     loadNames(master)
     psudotypes = list(smartFitter.types)
@@ -195,10 +194,12 @@ def initBase(master):
 
     onDeathB.place(x=800,y=50)
 
-initBase(master)
-print __name__
 
 if __name__ == "__main__":
+    master = Tk()
+    setMasterToLift(master)
+    master.geometry("1200x700")
+    initBase(master)
     rePopulate()
     master.mainloop()
 # we can run windows specific commands now.

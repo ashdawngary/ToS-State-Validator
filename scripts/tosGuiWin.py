@@ -6,7 +6,11 @@ import pilImageHandler
 import cordinateTracker
 import metaocr
 from Tkinter import *
-master = tosGui.master
+import ttk
+winMaster = Tk()
+tosGui.setMasterToLift(winMaster)
+winMaster.geometry("1200x700")
+winMaster.title('Tos-win32-State visualizer')
 actual = True
 def extractImage():
     global master
@@ -19,7 +23,7 @@ def extractImage():
             pilImageHandler.onImage(current_screen)
         else:
             pilImageHandler.onImage(metaocr.filter(current_screen))
-    master.after(70,extractImage)
+    winMaster.after(70,extractImage)
 def flipImageMode(event=None):
     global actual
     actual = not actual
@@ -31,9 +35,19 @@ def initWindows(master):
     cordinateTracker.initTracker(master)
 
 
+'''
+Initalize The Notebook System.
+'''
+tosNotebook = ttk.Notebook(winMaster)
+tosNotebook.pack(expand=True,fill='both')
+monteCarloBase = Frame(tosNotebook)
+visionBase = Frame(tosNotebook)
 
-
-initWindows(master)
+tosGui.initBase(monteCarloBase)
+initWindows(visionBase)
 extractImage()
 tosGui.rePopulate()
-master.mainloop()
+tosNotebook.add(monteCarloBase,text="Base Gui")
+tosNotebook.add(visionBase,text="OCR Extraction")
+
+winMaster.mainloop()
