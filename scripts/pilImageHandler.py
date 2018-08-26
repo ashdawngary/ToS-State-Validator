@@ -6,7 +6,7 @@ from Tkinter import *
 from PIL import Image,ImageTk,ImageGrab
 currentLoader = None
 currentLabel = None
-
+genericBackgroundAsset = None
 class PageFlipperImageDisplayer:
     def __init__(self,predef,labelInstance):
         '''
@@ -36,7 +36,7 @@ class PageFlipperImageDisplayer:
             self.cLabelInstance.config(image=self.page2)
             self.newest = newim
             self.modewrite = not self.modewrite
-        print 'trashed',self.modewrite,self.p1write,self.p2write
+        #print 'trashed',self.modewrite,self.p1write,self.p2write
     def queryNewestImage(self):
         return self.newest
 def getAsset(asset):
@@ -52,17 +52,20 @@ def takeImage(c1,c2):
     down =  max(c1[1],c2[1])
     return ImageGrab.grab(bbox=(left,up,right,down))
 def initVision(master):
-    global currentLoader,currentLabel
+    global currentLoader,currentLabel,genericBackgroundAsset
+    genericBackgroundAsset = getAsset("placeholder_buffer.gif")
     currentLabel = Label(master)
     currentLabel.place(x=300,y=550)
-    currentLoader = PageFlipperImageDisplayer(getAsset("placeholder_buffer.gif"),currentLabel)
-    currentLoader.write(getAsset("placeholder_buffer.gif"))
+    currentLoader = PageFlipperImageDisplayer(genericBackgroundAsset,currentLabel)
+    currentLoader.write(genericBackgroundAsset)
 def flipToGeneric():
     # Flips image to generic
     global currentLoader
-    currentLoader.write(getAsset("placeholder_buffer.gif"))
+    global genericBackgroundAsset
+    currentLoader.write(genericBackgroundAsset)
 def onImage(cimg):
-    print "Writing on Image"
+    #print "Writing on Image"
     # do OCR stuff
     global currentLoader
     currentLoader.write(cimg)
+    #filter by white idk?

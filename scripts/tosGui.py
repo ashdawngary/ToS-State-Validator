@@ -105,7 +105,8 @@ def async_fitClaims():
     print "Initalizing FitClaims"
     smartFitter.rst()
     for i in range(0,20):
-        smartFitter.fitClaims(RmReqs= RMR,TPReqs=TPR,TSReqs = TSR,TIReqs = TIR,TkReqs = TKR,usize = 10000)
+        print i
+        smartFitter.fitClaims(RmReqs= RMR,TPReqs=TPR,TSReqs = TSR,TIReqs = TIR,TkReqs = TKR,usize = 5000)
     print "FINISHED FITCLAIMING"
 def getSpyDetails():
     usr = getUserNumber("Spy","User Number")
